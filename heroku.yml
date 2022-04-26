@@ -1,0 +1,11 @@
+build:
+    docker:
+        redis: library/redis:3.2-alpine
+        services: docker/services/Dockerfile
+        postgres: docker/postgres/Dockerfile
+            
+    release:
+        command: 
+            - make build
+    run:
+        worker: make build

@@ -1,0 +1,75 @@
+version: '3'
+
+services:
+  redis:
+    container_name: "telegramcms.redis"
+    image: library/redis:3.2-alpine
+    command:  redis-server --appendonly yes
+    restart: always
+    volumes:
+      - redis:/data
+  services:
+    tty: true
+    build:
+      context: .
+      dockerfile: docker/services/Dockerfile
+    container_name: "telegramcms.services"
+    volumes:
+      - .:/app
+      - /app/frontend
+    depends_on:
+      - redis
+      - postgres
+    links:
+      - redis
+      - postgres
+    environment:
+      - DEBUG=True
+      - DEFAULT_HOST=0.0.0.0:9000
+      - DOCKER_ENVIRONMENT=True
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - VERSION=staging
+      - REDIS=redis://redis
+      - DATABASE=postgres
+      - DB_NAME=telegramcms_db
+      - DB_USER=telegramcms
+      - DB_PASS=telegramcms
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - TWITTER_CONSUMER_KEY=5lZF8Em8XHjgLW7Wwn2b82QYD
+      - TWITTER_CONSUMER_SECRET=LUXOZlSD9mgt9QujFFN0QKoRskNbsl7SUU1Vf524IQ7sO5epSi
+      - ACCESS_TOKEN=1231344747308032001-JbL7qXmcFyfyCyKjzTUlACAD6SeqLY
+      - ACCESS_TOKEN_SECRET=YmHlyztJdzSotmybH5K4IyBSpCeigBsifQdu1mqcxGGud
+      - ADMIN_API=http://services:9000
+      - TELEGRAM_API=http://services:9001
+      - FEED_API=http://services:9002
+      - SCHEDULER_API=http://services:9003
+      - FEED_AUTOPILOT=True
+      - TELEGRAM_AUTOPILOT=False
+      - SCHEDULER_AUTOPILOT=False
+
+
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+      - 9002:9002
+      - 9003:9003
+      - 8000:8000
+      - 6475:6475
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    container_name: "telegramcms.postgres"
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  redis: {}
+  app: {}
+  db_data: {}

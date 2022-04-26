@@ -1,0 +1,48 @@
+version: staging
+
+production: None
+
+staging:
+  postgres:
+    from: library/postgres:9.5
+    maintainer: "@codefather-labs"
+    dockerfile: postgres/Dockerfile
+    restart: always
+    connection:
+      DATABASE: postgres
+      USER: telegramcms
+      PASSWORD: telegramcms
+
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      POSTGRESS_DB: telegramcms
+      POSTGRES_USER: telegramcms
+      POSTGRES_PASSWORD: telegramcms
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  fastapi:
+    from: python:3.8
+    maintainer: "@codefather-labs"
+    dockerfile: services/Dockerfile
+    with:
+      - postgres
+
+    restart: always
+    startup: uvicorn services.core.settings:application --host 0.0.0.0 --port 9000 --reload
+    connection:
+      HOST: 0.0.0.0
+      PORT: 9000
+
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      DATABASE: telegramcms
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: telegramcms
+      DB_PASS: telegramcms
+      DOCKER_ENVIRONMENT: 1
+      VERSION: staging
+      DEFAULT_HOST: "0.0.0.0:9000"
+      DEBUG: 1

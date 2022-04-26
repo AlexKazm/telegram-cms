@@ -1,0 +1,8 @@
+setup:
+  step1: docker-compose build
+  step2: docker-compose down
+  step3: docker-compose up -d
+  step4: docker exec -it docker.postgres psql -U telegramcms -f /app/docker/init_db.sql
+  step5: docker-compose down
+
+up: docker-compose up

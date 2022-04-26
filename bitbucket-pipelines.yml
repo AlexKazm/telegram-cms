@@ -1,0 +1,14 @@
+image: python:3.8.2
+
+
+pipelines:
+  default:
+    - step:
+        name: Deploy to production
+        deployment: production
+        script:
+          - pipe: atlassian/heroku-deploy:0.1.1
+            variables:
+              HEROKU_API_KEY: $HEROKU_API_KEY
+              HEROKU_APP_NAME: $HEROKU_APP_NAME
+              ZIP_FILE: telegram-cms.tar.gz
